@@ -1,5 +1,6 @@
 package io.github.rahgadda.lms.loan;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,5 +64,25 @@ class LoanControllerTest {
                         .content("not-json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Malformed or missing request body"));
+    }
+
+    @Test
+    void rejectsFractionalTermWithBadRequest() throws Exception {
+        mockMvc.perform(post("/api/v1/loan/calculate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"principal\": 10000, \"annualInterestRate\": 5.5, \"termInMonths\": 1.9}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors[*].field", contains("termInMonths")));
+    }
+
+    @Test
+    void rejectsWrongTypedFieldWithBadRequest() throws Exception {
+        mockMvc.perform(post("/api/v1/loan/calculate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"principal\": \"abc\", \"annualInterestRate\": 5.5, \"termInMonths\": 24}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors[*].field", contains("principal")));
     }
 }

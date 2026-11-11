@@ -46,4 +46,13 @@ class LoanCalculatorServiceTest {
         assertThat(response.interestAmount()).isEqualByComparingTo("56.82");
         assertThat(response.totalAmount()).isEqualByComparingTo("1291.38");
     }
+
+    @Test
+    void roundsHalfUpAtExactTie() {
+        LoanCalculationResponse response = service.calculate(new LoanCalculationRequest(
+                new BigDecimal("1.00"), new BigDecimal("6"), 1));
+
+        assertThat(response.interestAmount()).isEqualByComparingTo("0.01");
+        assertThat(response.totalAmount()).isEqualByComparingTo("1.01");
+    }
 }

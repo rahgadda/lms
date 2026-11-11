@@ -32,7 +32,9 @@ Request body:
 |---------------------|--------|---------------------|
 | `principal`         | number | required, > 0       |
 | `annualInterestRate`| number | required, 0–100 (%) |
-| `termInMonths`      | integer| required, >= 1      |
+| `termInMonths`      | integer| required, >= 1; must be a JSON integer — `1.9` and `24.0` are rejected with `400` |
+
+A field with the wrong JSON type (for example `"principal": "abc"`) also returns `400` with that field named in `fieldErrors`.
 
 Example:
 
